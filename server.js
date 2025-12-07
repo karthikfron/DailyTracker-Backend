@@ -3,13 +3,16 @@ import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
+
+
 dotenv.config();
 
 
 const app = express();
 app.use(express.json());
 
-// ------------------ DATABASE SETUP ------------------
+// ------------------ DATABASE SETUP 
 let db;
 
 (async () => {
@@ -30,7 +33,7 @@ let db;
   console.log("Database ready 🚀");
 })();
 
-// ------------------ SIGNUP ROUTE ------------------
+// ------------------ SIGNUP ROUTE 
 app.post("/signup", async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -52,7 +55,7 @@ app.post("/signup", async (req, res) => {
   res.json({ msg: "Signup successful" });
 });
 
-// ------------------ LOGIN ROUTE ------------------
+// ------------------ LOGIN ROUTE 
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -67,8 +70,7 @@ app.post("/login", async (req, res) => {
   }
 
   // Create token
-  const jwt = await import("jsonwebtoken");
-  const token = jwt.default.sign(
+  const token = jwt.sign(
     { id: user.id, email: user.email },
     process.env.JWT_SECRET,
     { expiresIn: "1h" }
@@ -85,8 +87,38 @@ app.post("/login", async (req, res) => {
   });
 });
 
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
-// ------------------ START SERVER ------------------
+  if (!token) return res.status(401).json({ msg: "No token provided" });
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
+    if (err) return res.status(403).json({ msg: "Invalid or expired token" });
+
+    req.user = payload; // { id, email }
+    next();
+  });
+}
+
+// ------------------ PROTECTED ROUTE ------------------
+app.get("/profile", authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+
+  const user = await db.get(
+    "SELECT id, name, email FROM users WHERE id = ?",
+    [userId]
+  );
+
+  if (!user) return res.status(404).json({ msg: "User not found" });
+
+  res.json({ user });
+});
+
+
+
+
+// ------------------ START SERVER
 app.listen(5000, () => {
   console.log("Server running on http://localhost:5000 🚀");
 });
