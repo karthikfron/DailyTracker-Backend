@@ -34,7 +34,7 @@ let db;
   ALTER TABLE users ADD COLUMN refreshToken TEXT;
 `);
 
-  console.log("Database ready 🚀");
+  console.log("Database ready");
 })();
 
 // ------------------ SIGNUP ROUTE 
