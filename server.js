@@ -30,6 +30,10 @@ let db;
     )
   `);
 
+  await db.exec(`
+  ALTER TABLE users ADD COLUMN refreshToken TEXT;
+`);
+
   console.log("Database ready 🚀");
 })();
 
@@ -76,9 +80,20 @@ app.post("/login", async (req, res) => {
     { expiresIn: "1h" }
   );
 
+  // Create refreshToken
+const refreshToken = jwt.sign(
+  { id: user.id, email: user.email },
+  process.env.JWT_SECRET,
+  { expiresIn: "7d" }
+);
+ // Save refresh token in DB
+ await db.run("UPDATE users SET refreshToken = ? WHERE id = ?",[refreshToken, user.id]);
+
+
   res.json({
     msg: "Login successful",
     token,
+    refreshToken,
     user: {
       id: user.id,
       name: user.name,
@@ -101,7 +116,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// ------------------ PROTECTED ROUTE ------------------
+// ------------------ PROTECTED ROUTE 
 app.get("/profile", authenticateToken, async (req, res) => {
   const userId = req.user.id;
 
@@ -114,6 +129,57 @@ app.get("/profile", authenticateToken, async (req, res) => {
 
   res.json({ user });
 });
+
+// ----------------- RefreshToken route
+
+app.post("/token", async (req, res) =>{
+  const {refreshToken} = req.body;
+  if (!refreshToken){
+    res.status(401).json({msg : "Refresh token required"})
+  }
+
+   // Check Db
+  const user = await db.get(
+    "Select  * from users where refreshToken = ?", 
+    [refreshToken]
+  )
+
+  if (!user) return res.status(401).json({msg : "Invalid refresh Token"});
+
+   // Invalid referesh Token
+  jwt.verify(refreshToken, process.env.JWT_SECRET, (err, payload) => {
+    if (err) 
+      return res.status(403).json({msg : "EXpired refresh Token"})
+
+    const newAccesstoken = jwt.sign(
+      {id : user.id, email : user.email},
+      process.env.JWT_SECRET,
+      {expiresIn :"1h"}
+    )
+
+    res.json({accesstoken :newAccesstoken })
+    
+  })
+
+
+})
+
+
+ // ----------------- Logout route
+ app.post("/logout", async ( req, res) => {
+   const {refreshToken}  = req.body;
+   if (!refreshToken) return res.status(401).json({msg : "Refresh Token required"})
+
+   await db.run(
+    "UPDATE users SET refreshToken = NULL where refreshToken = ?", [refreshToken]
+   );
+
+   res.json({msg : "Logged out"})
+
+    
+
+
+ })
 
 
 
