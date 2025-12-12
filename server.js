@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(helmet(
   {contentSecurityPolicy:false}
 ));
-// Application Routes gores here 
+// Application Routes gores here
 app.use("/api-docs", swaggerUiServe, swaggerUiSetup);
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
