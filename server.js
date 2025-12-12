@@ -6,6 +6,8 @@ import { initDB } from "./db/database.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { swaggerUiServe, swaggerUiSetup } from "./docs/swagger.js";
+import { errorHandler } from "./middleware/error.middleware.js";
+
 
 
 
@@ -19,6 +21,7 @@ app.use(helmet(
 ));
 // Application Routes gores here
 app.use("/api-docs", swaggerUiServe, swaggerUiSetup);
+app.use(errorHandler);
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 100, // limit each IP to 100 requests/min
