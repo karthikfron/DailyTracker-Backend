@@ -5,6 +5,10 @@ import userRoutes from "./routes/user.routes.js";
 import { initDB } from "./db/database.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import { swaggerUiServe, swaggerUiSetup } from "./docs/swagger.js";
+
+
+
 
 dotenv.config();
 
@@ -13,6 +17,8 @@ app.use(express.json());
 app.use(helmet(
   {contentSecurityPolicy:false}
 ));
+// Application Routes gores here 
+app.use("/api-docs", swaggerUiServe, swaggerUiSetup);
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 100, // limit each IP to 100 requests/min
