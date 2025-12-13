@@ -7,6 +7,8 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { swaggerUiServe, swaggerUiSetup } from "./docs/swagger.js";
 import { errorHandler } from "./middleware/error.middleware.js";
+import {cors} from 'cors';
+import {morgan} from 'morgan';
 
 
 
@@ -28,6 +30,18 @@ const limiter = rateLimit({
   message: { msg: "Too many requests, slow down!" },
 });
 app.use(limiter);
+
+app.use(
+  cors(
+    {
+      origin : "*", //Later we can restrict to frontend Url
+      methods : ["GET", "POST", "PUT", "DELETE"],
+      allowedHeaders : ["Content-Type", "Authorization"],
+    }
+   )
+);
+
+app.use(morgan("dev"));
 
 // Init DB
 await initDB();

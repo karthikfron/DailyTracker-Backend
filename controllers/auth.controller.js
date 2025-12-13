@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { signupSchema, loginSchema } from "../validators/auth.validator.js";
 
 import {
   findUserByEmail,
@@ -15,7 +16,9 @@ import {
 } from "../utils/token.utils.js";
 
 export const signup = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password } = signupSchema.parse(req.body);
+  
+
 
   const exists = await findUserByEmail(email);
   if (exists) return res.status(400).json({ msg: "Email already used" });
@@ -28,7 +31,9 @@ export const signup = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } =  loginSchema.parse(req.body);
+ 
+
 
   const user = await findUserByEmail(email);
   if (!user) return res.status(400).json({ msg: "Invalid email or password" });
