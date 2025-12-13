@@ -7,8 +7,8 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { swaggerUiServe, swaggerUiSetup } from "./docs/swagger.js";
 import { errorHandler } from "./middleware/error.middleware.js";
-import {cors} from 'cors';
-import {morgan} from 'morgan';
+import cors from 'cors';
+import morgan from 'morgan';
 
 
 
@@ -23,7 +23,7 @@ app.use(helmet(
 ));
 // Application Routes gores here
 app.use("/api-docs", swaggerUiServe, swaggerUiSetup);
-app.use(errorHandler);
+
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 100, // limit each IP to 100 requests/min
@@ -45,10 +45,21 @@ app.use(morgan("dev"));
 
 // Init DB
 await initDB();
+app.get("/", (req, res) => {
+  res.json({
+    status: "OK",
+    message: "Daily Tracker Backend API is running",
+    docs: "/api-docs"
+  });
+});
+
 
 // Routes
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 
+app.use(errorHandler);
+
 // Server
-app.listen(5000, () => console.log("Server running on 5000 🚀"));
+// app.listen(5000, () => console.log("Server running on 5000 🚀"));
+export default app;
