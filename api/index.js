@@ -1,12 +1,12 @@
 import express from "express";
 import dotenv from "dotenv";
-import authRoutes from "./routes/auth.routes.js";
-import userRoutes from "./routes/user.routes.js";
-import { initDB } from "./db/index.js";
+import authRoutes from "../routes/auth.routes.js";
+import userRoutes from "../routes/user.routes.js";
+import { initDB } from "../db/index.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import { swaggerUiServe, swaggerUiSetup } from "./docs/swagger.js";
-import { errorHandler } from "./middleware/error.middleware.js";
+import { swaggerUiServe, swaggerUiSetup } from "../docs/swagger.js";
+import { errorHandler } from "../middleware/error.middleware.js";
 import cors from 'cors';
 import morgan from 'morgan';
 
@@ -23,10 +23,9 @@ app.set("trust proxy", 1);
 
 app.use(express.json());
 app.use(helmet(
-  {contentSecurityPolicy:false}
 ));
 // Application Routes gores here
-app.use("/api-docs", swaggerUiServe, swaggerUiSetup);
+app.use("/api-docs",helmet({ contentSecurityPolicy: false }), swaggerUiServe, swaggerUiSetup);
 
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
@@ -48,7 +47,15 @@ app.use(
 app.use(morgan("dev"));
 
 // Init DB
-await initDB();
+let dbReady = false;
+
+app.use(async (req, res, next) => {
+  if (!dbReady) {
+    await initDB();
+    dbReady = true;
+  }
+  next();
+});
 app.get("/", (req, res) => {
   res.json({
     status: "OK",
