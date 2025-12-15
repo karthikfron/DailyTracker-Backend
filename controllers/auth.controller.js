@@ -8,7 +8,7 @@ import {
   createUser,
   saveRefreshToken,
   clearRefreshToken
-} from "../models/user.model.js";
+} from "../models/user.model.sqlite.js";
 
 import {
   createAccessToken,

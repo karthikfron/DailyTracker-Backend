@@ -1,5 +1,10 @@
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const options = {
   definition: {
@@ -24,7 +29,8 @@ const options = {
       },
     ],
   },
-  apis: ["./routes/*.js"], // Path  to api route 
+  //  ABSOLUTE PATH (this fixes Vercel)
+  apis: [path.join(__dirname, "../routes/*.js")],
 };
 
 export const swaggerSpec = swaggerJSDoc(options);

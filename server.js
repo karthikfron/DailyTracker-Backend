@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
-import { initDB } from "./db/database.js";
+import { initDB } from "./db/index.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { swaggerUiServe, swaggerUiSetup } from "./docs/swagger.js";
@@ -17,6 +17,10 @@ import morgan from 'morgan';
 dotenv.config();
 
 const app = express();
+
+/* 🔥 VERY IMPORTANT FOR VERCEL  WHEN DEPLOYING*/
+app.set("trust proxy", 1);
+
 app.use(express.json());
 app.use(helmet(
   {contentSecurityPolicy:false}
@@ -61,5 +65,5 @@ app.use("/user", userRoutes);
 app.use(errorHandler);
 
 // Server
-app.listen(5000, () => console.log("Server running on 5000 🚀"));
+// app.listen(5000, () => console.log("Server running on 5000 🚀"));
 export default app;

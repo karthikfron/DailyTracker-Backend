@@ -1,4 +1,4 @@
-import { getProfile } from "../models/user.model.js";
+import { getProfile } from "../models/user.model.sqlite.js";
 
 export const profile = async (req, res) => {
   const user = await getProfile(req.user.id);

@@ -1,9 +1,11 @@
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 
+
 let db;
 
-export const initDB = async () => {
+
+export const initSQLite  = async () => {
   db = await open({
     filename: "./dailytracker.db",
     driver: sqlite3.Database
@@ -23,4 +25,4 @@ export const initDB = async () => {
   return db;
 };
 
-export const getDB = () => db;
+export const getSQLite  = () => db;
