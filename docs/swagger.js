@@ -18,6 +18,11 @@ const options = {
     },
   },
 },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
   apis: ["./routes/*.js"], // Path  to api route 
 };
