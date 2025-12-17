@@ -29,7 +29,7 @@ const options = {
       },
     ],
   },
-  //  ABSOLUTE PATH (this fixes Vercel)
+  
   apis: [path.join(__dirname, "../routes/*.js")],
 };
 

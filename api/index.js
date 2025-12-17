@@ -18,7 +18,7 @@ dotenv.config();
 
 const app = express();
 
-/* 🔥 VERY IMPORTANT FOR VERCEL  WHEN DEPLOYING*/
+
 app.set("trust proxy", 1);
 
 app.use(express.json());
@@ -46,7 +46,7 @@ app.use(
 
 app.use(morgan("dev"));
 
-// Init DB
+// Initialize DB
 let dbReady = false;
 
 app.use(async (req, res, next) => {
@@ -72,5 +72,5 @@ app.use("/user", userRoutes);
 app.use(errorHandler);
 
 // Server
-// app.listen(5000, () => console.log("Server running on 5000 🚀"));
+// app.listen(5000, () => console.log("Server running on 5000 "));
 export default app;
